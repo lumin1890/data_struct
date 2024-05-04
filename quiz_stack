@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_STACK_SIZE 10
+
+typedef int element;
+typedef struct {
+	element data[MAX_STACK_SIZE];
+	int top;
+} StackType;
+// 스택 초기화 함수
+void init_stack(StackType* s) {
+	s->top = -1;
+}
+
+// 공백 상태 검출 함수
+int is_empty(StackType* s) {
+	return (s->top == -1);
+}
+// 포화 상태 검출 함수
+int is_full(StackType* s) {
+	return (s->top == (MAX_STACK_SIZE - 1));
+}
+
+// 삽입 함수
+void push(StackType* s, element item) {
+	if (is_full(s)) {
+		fprintf(stderr, "스택 overflow\n");
+		return;
+	}
+	else s->data[++(s->top)] = item;
+}
+// 삭제 함수
+element pop(StackType* s) {
+	if (is_empty(s)) {
+		fprintf(stderr, "스택 underflow\n");
+		exit(1);
+	}
+	else return s->data[(s->top)--];
+
+}
+
+main() {
+    int T;
+    scanf("%d", &T);
+
+    while (T--) {
+        StackType stack;
+        init_stack(&stack);
+
+        int N;
+        scanf("%d", &N);
+        int min_block = 0, max_block = 0;
+
+        for (int i = 0; i < N; i++) {
+            int query_type, block_num;
+            scanf("%d", &query_type);
+
+            if (query_type == 1) {
+                scanf("%d", &block_num);
+                push(&stack, block_num);
+
+                if (min_block == 0 || block_num < min_block)
+                    min_block = block_num;
+                if (block_num > max_block)
+                    max_block = block_num;
+
+                printf("%d %d\n", min_block, max_block);
+            }
+            else if (query_type == 2) {
+                if (!is_empty(&stack)) {
+                    int removed_block = pop(&stack);
+
+                    if (is_empty(&stack)) {
+                        min_block = 0;
+                        max_block = 0;
+                    }
+                    else {
+                        min_block = stack.data[0];
+                        for (int j = 1; j <= stack.top; j++) {
+                            if (stack.data[j] < min_block)
+                                min_block = stack.data[j];
+                        }
+                        max_block = stack.data[0];
+                        for (int j = 1; j <= stack.top; j++) {
+                            if (stack.data[j] > max_block)
+                                max_block = stack.data[j];
+                        }
+                    }
+                    printf("%d %d\n", min_block, max_block);
+                }
+            }
+        }
+    }
+
+    return 0;
+}
